@@ -9,7 +9,11 @@ class User < ApplicationRecord
     def self.find_by_credentials(user_name, password)
         # returns the user with the given name if the password is correct
         user = User.find_by(user_name: user_name)    # user_name: 'inputted username' --> gives the record that matches
-
+        if is_password?(password) && user
+            return user
+        else
+            puts "wrong credentials"
+        end
     end
     
     def self.generate_session_token
@@ -20,15 +24,16 @@ class User < ApplicationRecord
         self.update(session_token: self.class.generate_session_token)
     end
 
-    def password=(password)
+    def password=(user_password)
         # sets out password
-        password = password
-        BCrypt::Password.create(password)
+        password = user_password
+        self.password_digest = BCrypt::Password.create(password)
     end
 
     def is_password?(password)
         # method that verifies a password
-        
+        password_copy_crypt = BCrypt::Password.new(password)
+        password_copy_crypt.is_password?(password)
     end
 
     private
@@ -41,10 +46,10 @@ class User < ApplicationRecord
 end
 
 # F: self.find_by_credentials (class method) --
-# I: is_password? --
+# I: is_password? -- done!
 # G: self.generate_session_token (class method) -done-
 # V: validations, after_initialize --
 # A: attr_reader :password  --
-# P: password= --
+# P: password= -- done!
 # E: ensure_session_token --
 # R: reset_session_token! -done-
